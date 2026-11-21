@@ -39,6 +39,7 @@ local TILE_SIZE = 29.39 / 3
 local ENEMY_RADIUS = TILE_SIZE * 3.5
 local LOCAL_RADIUS = TILE_SIZE * 2.5
 local BLUE_RADIUS = TILE_SIZE * 5.5
+local PURPLE_RADIUS = TILE_SIZE * 2
 
 local PLATFORM_SIZE = 1500
 local PLATFORM_THICKNESS = 1
@@ -54,6 +55,7 @@ local TEXTURE_TILE_SIZE = 30
 local RED = Color3.fromRGB(255, 0, 0)
 local YELLOW = Color3.fromRGB(255, 230, 0)
 local BLUE = Color3.fromRGB(0, 140, 255)
+local PURPLE = Color3.fromRGB(190, 40, 255)
 local GREEN = Color3.fromRGB(45, 220, 125)
 local AMBER = Color3.fromRGB(255, 187, 50)
 local DIM = Color3.fromRGB(105, 115, 133)
@@ -410,6 +412,25 @@ local function buildCircle(parent, name, radius, color)
     return model
 end
 
+-- HIGH-VISIBILITY PURPLE 2-TILE OUTLINE (ALL PLAYERS)
+local function buildPurpleRing(parent)
+    local model = Instance.new("Model")
+    model.Name = "Purple2TileRange"
+    model.Parent = parent
+
+    for i = 1, 96 do
+        local a1 = (i - 1) * math.pi * 2 / 96
+        local a2 = i * math.pi * 2 / 96
+        local p1 = Vector3.new(math.cos(a1) * PURPLE_RADIUS, 0, math.sin(a1) * PURPLE_RADIUS)
+        local p2 = Vector3.new(math.cos(a2) * PURPLE_RADIUS, 0, math.sin(a2) * PURPLE_RADIUS)
+        local border = newPart(model, "PurpleBorder", PURPLE)
+        border.Size = Vector3.new(0.65, 0.16, (p2 - p1).Magnitude + 0.12)
+        border.Transparency = 0
+        border.CFrame = CFrame.lookAt((p1 + p2) / 2, p2)
+    end
+    return model
+end
+
 -- CREATE PLAYER CIRCLES
 local function createPlayerCircles(player)
     if circles[player] then return end
@@ -427,6 +448,8 @@ local function createPlayerCircles(player)
         isLocal and YELLOW or RED
     )
 
+    local purple = buildPurpleRing(container)
+
     local blue = nil
     if not isLocal then
         blue = buildCircle(
@@ -442,6 +465,7 @@ local function createPlayerCircles(player)
         Container = container,
         Main = main,
         Blue = blue,
+        Purple = purple,
         LastColor = isLocal and YELLOW or RED
     }
 end
@@ -621,6 +645,7 @@ end
             if root then
                 local cf = CFrame.new(root.Position.X, circleY, root.Position.Z)
                 data.Main:PivotTo(cf)
+                if data.Purple then data.Purple:PivotTo(cf * CFrame.new(0, 0.14, 0)) end
                 if data.Blue and blueEnabled then data.Blue:PivotTo(cf) end
             end
         end
