@@ -412,7 +412,7 @@ local function buildCircle(parent, name, radius, color)
     return model
 end
 
--- HIGH-VISIBILITY PURPLE 2-TILE OUTLINE (ALL PLAYERS)
+-- HIGH-VISIBILITY PURPLE 2-TILE OUTLINE (LOCAL PLAYER ONLY)
 local function buildPurpleRing(parent)
     local model = Instance.new("Model")
     model.Name = "Purple2TileRange"
@@ -448,7 +448,7 @@ local function createPlayerCircles(player)
         isLocal and YELLOW or RED
     )
 
-    local purple = buildPurpleRing(container)
+    local purple = isLocal and buildPurpleRing(container) or nil
 
     local blue = nil
     if not isLocal then
